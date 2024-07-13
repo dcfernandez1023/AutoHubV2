@@ -2,6 +2,8 @@
 using AutoHub.Data;
 using Microsoft.EntityFrameworkCore;
 using AutoHub.Repositories.Abstractions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using AutoHub.Models.RESTAPI;
 
 namespace AutoHub.Repositories
 {
@@ -14,36 +16,40 @@ namespace AutoHub.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(Vehicle vehicle)
+        public async Task<Vehicle> AddAsync(Vehicle vehicle)
         {
-            _context.Vehicles.Add(vehicle);
+            _context.Vehicle.Add(vehicle);
             await _context.SaveChangesAsync();
+            return vehicle;
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task<Guid?> DeleteAsync(Guid id)
         {
-            var vehicle = await _context.Vehicles.FindAsync(id);
+            var vehicle = await _context.Vehicle.FindAsync(id);
             if (vehicle != null)
             {
-                _context.Vehicles.Remove(vehicle);
+                _context.Vehicle.Remove(vehicle);
                 await _context.SaveChangesAsync();
+                return id;
             }
+            return null;
         }
 
-        public async Task<IEnumerable<Vehicle>> GetByUserId(string userId)
+        public async Task<IEnumerable<Vehicle>> GetByUserId(Guid userId)
         {
-            return await _context.Vehicles.Where(v => v.UserId == userId).ToListAsync();
+            return await _context.Vehicle.Where(v => v.UserId == userId).ToListAsync();
         }
 
-        public async Task<Vehicle> GetByIdAsync(string id)
+        public async Task<Vehicle?> GetByIdAsync(Guid id)
         {
-            return await _context.Vehicles.FindAsync(id);
+            return await _context.Vehicle.FindAsync(id);
         }
 
-        public async Task UpdateAsync(Vehicle vehicle)
+        public async Task<Vehicle> UpdateAsync(Vehicle vehicle)
         {
-            _context.Vehicles.Update(vehicle);
+            _context.Vehicle.Update(vehicle);
             await _context.SaveChangesAsync();
+            return vehicle;
         }
     }
 }

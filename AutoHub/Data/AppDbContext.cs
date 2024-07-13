@@ -7,17 +7,14 @@ namespace AutoHub.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<Vehicle> Vehicle { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Vehicle configuration
-            modelBuilder.Entity<Vehicle>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-            });
+            modelBuilder.Entity<Vehicle>().ToTable("Vehicle");
         }
     }
 }

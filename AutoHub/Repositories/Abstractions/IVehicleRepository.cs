@@ -4,10 +4,10 @@ namespace AutoHub.Repositories.Abstractions
 {
     public interface IVehicleRepository
     {
-        Task<IEnumerable<Vehicle>> GetByUserId(string userId);
-        Task<Vehicle> GetByIdAsync(string id);
-        Task AddAsync(Vehicle vehicle);
-        Task UpdateAsync(Vehicle vehicle);
-        Task DeleteAsync(string id);
+        Task<IEnumerable<Vehicle>> GetByUserId(Guid userId);
+        Task<Vehicle?> GetByIdAsync(Guid id);
+        Task<Vehicle> AddAsync(Vehicle vehicle);
+        Task<Vehicle> UpdateAsync(Vehicle vehicle);
+        Task<Guid?> DeleteAsync(Guid id);
     }
 }

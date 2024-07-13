@@ -7,116 +7,97 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoHub.Data;
 using AutoHub.Models;
+using AutoHub.BizLogic.Abstractions;
+using AutoHub.Models.RESTAPI;
+using AutoHub.Helpers;
 
 namespace AutoHub.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users/{userId:guid}/[controller]")]
     [ApiController]
     public class VehiclesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IVehicleBizLogic _vehicleBizLogic;
 
-        public VehiclesController(AppDbContext context)
+        public VehiclesController(IVehicleBizLogic vehicleBizLogic)
         {
-            _context = context;
+            _vehicleBizLogic = vehicleBizLogic;
         }
 
-        // GET: api/Vehicles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Vehicle>>> GetVehicles()
+        public async Task<ActionResult<IEnumerable<Vehicle>>> GetVehicles([FromRoute] Guid userId)
         {
-            return await _context.Vehicles.ToListAsync();
+            try 
+            {
+                IEnumerable<Vehicle> vehicles = await _vehicleBizLogic.GetUserVehicles(userId);
+                return Ok(vehicles);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = ControllerExceptionHelper.HandleControllerException(ex);
+                return StatusCode(statusCode, message);
+            }
         }
 
-        // GET: api/Vehicles/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Vehicle>> GetVehicle(string id)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<Vehicle>> GetVehicle([FromRoute] Guid userId, Guid id)
         {
-            var vehicle = await _context.Vehicles.FindAsync(id);
-
-            if (vehicle == null)
-            {
-                return NotFound();
-            }
-
-            return vehicle;
-        }
-
-        // PUT: api/Vehicles/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutVehicle(string id, Vehicle vehicle)
-        {
-            if (id != vehicle.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(vehicle).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                Vehicle vehicle = await _vehicleBizLogic.GetVehicle(userId, id);
+                return Ok(vehicle);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!VehicleExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                var (statusCode, message) = ControllerExceptionHelper.HandleControllerException(ex);
+                return StatusCode(statusCode, message);
             }
-
-            return NoContent();
         }
 
-        // POST: api/Vehicles
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<Vehicle>> PutVehicle([FromRoute] Guid userId, Guid id, [FromBody] VehicleRequest vehicleRequest)
+        {
+            try
+            {
+                Vehicle vehicle = await _vehicleBizLogic.UpdateVehicle(userId, id, vehicleRequest);
+                return Ok(vehicle);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = ControllerExceptionHelper.HandleControllerException(ex);
+                return StatusCode(statusCode, message);
+            }
+        }
+
         [HttpPost]
-        public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle vehicle)
+        public async Task<ActionResult<Vehicle>> PostVehicle([FromRoute] Guid userId, [FromBody] VehicleRequest vehicleRequest)
         {
-            _context.Vehicles.Add(vehicle);
             try
             {
-                await _context.SaveChangesAsync();
+                Vehicle vehicle = await _vehicleBizLogic.CreateVehicle(userId, vehicleRequest);
+                return Ok(vehicle);
             }
-            catch (DbUpdateException)
+            catch (Exception ex)
             {
-                if (VehicleExists(vehicle.Id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
+                var (statusCode, message) = ControllerExceptionHelper.HandleControllerException(ex);
+                return StatusCode(statusCode, message);
             }
 
-            return CreatedAtAction("GetVehicle", new { id = vehicle.Id }, vehicle);
         }
 
-        // DELETE: api/Vehicles/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVehicle(string id)
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteVehicle(Guid id)
         {
-            var vehicle = await _context.Vehicles.FindAsync(id);
-            if (vehicle == null)
+            try
             {
-                return NotFound();
+                await _vehicleBizLogic.DeleteVehicle(id);
+                return Ok();
             }
-
-            _context.Vehicles.Remove(vehicle);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool VehicleExists(string id)
-        {
-            return _context.Vehicles.Any(e => e.Id == id);
+            catch (Exception ex)
+            {
+                var (statusCode, message) = ControllerExceptionHelper.HandleControllerException(ex);
+                return StatusCode(statusCode, message);
+            }
         }
     }
 }
