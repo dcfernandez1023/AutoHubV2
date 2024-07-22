@@ -11,7 +11,8 @@ namespace AutoHub.Helpers
             Console.WriteLine("--------------- EXCEPTION OCCURRED ---------------");
             Console.WriteLine(ex.StackTrace);
             Console.WriteLine("--------------- EXCEPTION END ---------------");
-            int statusCode = AutoHubServerException.StatusCode;
+            Console.WriteLine(ex.Message);
+            int statusCode = StatusCodes.Status500InternalServerError;
             string message = AutoHubServerException.FriendlyMessage;
 
             if (ex is ResourceForbiddenException)
@@ -23,6 +24,15 @@ namespace AutoHub.Helpers
             {
                 statusCode = ResourceNotFoundException.StatusCode;
                 message = ResourceNotFoundException.FriendlyMessage;
+            }
+            else if (ex is AutoHubServerException)
+            {
+                AutoHubServerException? autoHubEx = ex as AutoHubServerException;
+                if (autoHubEx != null)
+                {
+                    statusCode = autoHubEx.StatusCode;
+                    message = autoHubEx.Message;
+                }
             }
 
             return (statusCode, message);

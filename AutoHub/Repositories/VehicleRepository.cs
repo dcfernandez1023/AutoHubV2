@@ -7,10 +7,10 @@ using AutoHub.Models.RESTAPI;
 
 namespace AutoHub.Repositories
 {
-    public class VehicleRepository : IVehicleRepository
+    public class VehicleRepository : AbstractRepository<Vehicle>, IVehicleRepository
     {
-        private readonly AppDbContext _context;
-
+        public VehicleRepository(AppDbContext context) : base(context) { }
+        /*
         public VehicleRepository(AppDbContext context)
         {
             _context = context;
@@ -51,5 +51,6 @@ namespace AutoHub.Repositories
             await _context.SaveChangesAsync();
             return vehicle;
         }
+        */
     }
 }

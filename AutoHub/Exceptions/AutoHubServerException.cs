@@ -2,11 +2,17 @@
 {
     public class AutoHubServerException : Exception
     {
-        public static readonly int StatusCode = StatusCodes.Status500InternalServerError;
-        public static readonly string FriendlyMessage = "An unexpected error ocurred";
+        public int StatusCode;
+        public static readonly string FriendlyMessage = "An unexpected error occurred";
 
-        public AutoHubServerException() : base(FriendlyMessage) { }
+        public AutoHubServerException(int statusCode) : base(FriendlyMessage)
+        {
+            StatusCode = statusCode;
+        }
 
-        public AutoHubServerException(string message) : base(message) { }
+        public AutoHubServerException(int statusCode, string message) : base(message)
+        {
+            StatusCode = statusCode;
+        }
     }
 }

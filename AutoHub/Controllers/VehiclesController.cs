@@ -86,7 +86,7 @@ namespace AutoHub.Controllers
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteVehicle(Guid id)
+        public async Task<IActionResult> DeleteVehicle([FromRoute] Guid userId, Guid id)
         {
             try
             {
