@@ -21,6 +21,7 @@ var dbConnectionString = "Server=db;Port=5432;Host=localhost;Database=AutoHub;Us
 var secret = "J+PrCx6i7qKsFnk28VJ4c2FL0lN+1aA6mRjfzF0sTAo=";
 var key = Encoding.UTF8.GetBytes(secret);
 
+// Auth
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -36,7 +37,6 @@ builder.Services.AddAuthentication(x =>
         ValidateLifetime = true
     };
 });
-
 builder.Services.AddAuthorization(x =>
 {
     x.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -45,10 +45,18 @@ builder.Services.AddAuthorization(x =>
 });
 builder.Services.AddSingleton(new AuthService(secret));
 
+// Db Context
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(dbConnectionString));
+
+// Repositories
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IVehicleScheduleRepository, VehicleScheduleRepository>();
+builder.Services.AddScoped<IScheduledServiceTypeRepository, ScheduledServiceTypeRepository>();
+
+// Biz logic 
 builder.Services.AddScoped<IVehicleBizLogic, VehicleBizLogic>();
+builder.Services.AddScoped<IScheduledServiceTypeBizLogic, ScheduledServiceTypeBizLogic>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

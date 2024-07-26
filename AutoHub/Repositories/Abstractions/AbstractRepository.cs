@@ -48,7 +48,7 @@ namespace AutoHub.Repositories.Abstractions
             return null;
         }
 
-        public async Task<IEnumerable<T>> GetByUserId(Guid userId)
+        public async Task<IList<T>> GetByUserId(Guid userId)
         {
             var parameter = Expression.Parameter(typeof(T), "v");
             var property = Expression.Property(parameter, "UserId");
