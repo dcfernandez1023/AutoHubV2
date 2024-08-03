@@ -69,6 +69,51 @@ namespace AutoHub.Controllers
             }
         }
 
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<ScheduledServiceType>> PutScheduledServiceType([FromRoute] Guid userId, Guid id, [FromBody] ScheduledServiceTypeRequest request)
+        {
+            try
+            {
+                ScheduledServiceType scheduledServiceType = await _scheduledServiceTypeBizLogic.UpdateScheduledServiceType(id, userId, request.Name);
+                return Ok(scheduledServiceType);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = ControllerExceptionHelper.HandleControllerException(ex);
+                return StatusCode(statusCode, message);
+            }
+        }
+
+        [HttpPut("{id:guid}/schedules")]
+        public async Task<ActionResult<IEnumerable<VehicleSchedule>>> PutVehicleSchedules([FromRoute] Guid userId, Guid id, [FromBody] IList<VehicleSchedule> vehicleSchedules)
+        {
+            try
+            {
+                IEnumerable<VehicleSchedule> updatedSchedules = await _scheduledServiceTypeBizLogic.BatchUpdateVehicleSchedules(userId, id, vehicleSchedules);
+                return Ok(updatedSchedules);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = ControllerExceptionHelper.HandleControllerException(ex);
+                return StatusCode(statusCode, message);
+            }
+        }
+
+        [HttpDelete("{id:guid}/schedules")]
+        public async Task<ActionResult<IEnumerable<Guid>>> DeleteVehicleSchedules([FromRoute] Guid userId, Guid id, [FromBody] IList<Guid> vehicleScheduleIds)
+        {
+            try
+            {
+                IEnumerable<Guid> deletedScheduleIds = await _scheduledServiceTypeBizLogic.BatchDeleteVehicleSchedules(userId, id, vehicleScheduleIds);
+                return Ok(deletedScheduleIds);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = ControllerExceptionHelper.HandleControllerException(ex);
+                return StatusCode(statusCode, message);
+            }
+        }
+
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult> DeleteScheduledServiceType([FromRoute] Guid userId, Guid id)
         {

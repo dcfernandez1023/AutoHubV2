@@ -11,15 +11,22 @@ using AutoHub.BizLogic.Abstractions;
 using AutoHub.BizLogic;
 using AutoHub.Repositories.Abstractions;
 using AutoHub.Repositories;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddUserSecrets<Program>();
 
 // Add services to the container.
 
 // TODO: Store these somewhere secure
+var dbConnectionString = builder.Configuration["DbConnectionString"];
+var secret = builder.Configuration["JwtSecret"]!;
+var key = Encoding.UTF8.GetBytes(secret);
+/*
 var dbConnectionString = "Server=db;Port=5432;Host=localhost;Database=AutoHub;Username=postgres;Password=postgres";
 var secret = "J+PrCx6i7qKsFnk28VJ4c2FL0lN+1aA6mRjfzF0sTAo=";
 var key = Encoding.UTF8.GetBytes(secret);
+*/
 
 // Auth
 builder.Services.AddAuthentication(x =>
@@ -58,7 +65,10 @@ builder.Services.AddScoped<IScheduledServiceTypeRepository, ScheduledServiceType
 builder.Services.AddScoped<IVehicleBizLogic, VehicleBizLogic>();
 builder.Services.AddScoped<IScheduledServiceTypeBizLogic, ScheduledServiceTypeBizLogic>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Conventions.Add(new RouteTokenTransformerConvention(new CamelCaseParameterTransformer()));
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(x =>
 {
@@ -85,11 +95,6 @@ builder.Services.AddSwaggerGen(x =>
             new string[] { }
         }
     });
-});
-
-builder.Services.Configure<RouteOptions>(options =>
-{
-    options.LowercaseUrls = true;
 });
 
 var app = builder.Build();
