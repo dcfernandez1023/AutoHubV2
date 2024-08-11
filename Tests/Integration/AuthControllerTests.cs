@@ -1,12 +1,14 @@
 ﻿using AutoHub.Models.RESTAPI;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Xunit;
 
 namespace AutoHub.Tests.Integration
 {
-    internal class AuthControllerTests : IClassFixture<WebApplicationFactory<Program>>
+    public class AuthControllerTests : IClassFixture<WebApplicationFactory<Program>>
     {
         readonly HttpClient _client;
 
@@ -24,7 +26,7 @@ namespace AutoHub.Tests.Integration
                 Password = "Password"
             };
             var jsonContent = JsonContent.Create(requestBody);
-            var response = await _client.PostAsync("/login", jsonContent);
+            var response = await _client.PostAsync("/api/auth/login", jsonContent);
 
             // Ensure success response code
             response.EnsureSuccessStatusCode();
