@@ -13,11 +13,11 @@ namespace Tests.Integration.Utilities
 {
     internal class AuthHelper
     {
-        public static async Task<string> GetAccessToken(HttpClient client)
+        public static async Task<string> GetAccessToken(HttpClient client, string identifier)
         {
             var requestBody = new LoginModel()
             {
-                Email = "test@example.com",
+                Email = identifier,
                 Password = "Password"
             };
             var jsonContent = JsonContent.Create(requestBody);

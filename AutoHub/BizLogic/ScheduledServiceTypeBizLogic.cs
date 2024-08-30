@@ -29,6 +29,17 @@ namespace AutoHub.BizLogic
                 throw new ResourceNotFoundException(String.Format("ScheduledServiceType {0} does not exist", sstId));
             }
 
+            // Ensure there are no duplicate vehicle ids in the request payload
+            HashSet<Guid> requestVehicleIdSet = new HashSet<Guid>();
+            foreach (VehicleScheduleRequest vehicleScheduleRequest in vehicleSchedules)
+            {
+                if (requestVehicleIdSet.Contains(vehicleScheduleRequest.VehicleId))
+                {
+                    throw new AutoHubServerException(StatusCodes.Status403Forbidden, String.Format("Duplicate vehicle id {0} provided. There cannot be more than one schedule for a vehicle under a scheduled service type", vehicleScheduleRequest.VehicleId));
+                }
+                requestVehicleIdSet.Add(vehicleScheduleRequest.VehicleId);
+            }
+
             // Get a set of the vehicle ids that already have a schedule
             HashSet<Guid> vehicleIdSet = new HashSet<Guid>();
             IList<VehicleSchedule> existingVehicleSchedules = await _vehicleScheduleRepository.GetBySstIdAsync(sstId);
@@ -90,13 +101,8 @@ namespace AutoHub.BizLogic
 
         public async Task DeleteScheduledServiceType(Guid userId, Guid id)
         {
-            Guid? deletedId = await _scheduledServiceTypeRepository.DeleteAsync(id);
-            if (deletedId == null)
-            {
-                throw new ResourceNotFoundException();
-            }
-
             await _vehicleScheduleRepository.DeleteManyAsyncBySstId(id);
+            Guid? deletedId = await _scheduledServiceTypeRepository.DeleteAsync(id);
         }
 
         public async Task<IList<ScheduledServiceTypeResponse>> GetUserScheduledServiceTypesWithVehicleSchedules(Guid userId)

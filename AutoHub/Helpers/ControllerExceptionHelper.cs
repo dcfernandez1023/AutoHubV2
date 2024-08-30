@@ -34,6 +34,10 @@ namespace AutoHub.Helpers
                     message = autoHubEx.Message;
                 }
             }
+            else
+            {
+                message = ex.Message + " " + ex.InnerException.Message;
+            }
 
             return (statusCode, message);
         }
